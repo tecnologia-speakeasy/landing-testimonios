@@ -41,6 +41,15 @@
   --color-marcador: #9e9e9e;
 }
 
+/*
+ * Desktop con poca altura: portátiles (1366x768, 1920x1080 al 125 %...), donde
+ * con las barras del navegador y de Windows quedan entre 600 y 800px. El diseño
+ * (670px de contenido más los márgenes) no cabe y se cortaba por abajo, así que
+ * se compacta para que se vea completo sin desplazarse. Por encima de 820px el
+ * diseño cabe tal cual.
+ */
+@custom-variant compacto (@media (min-width: 64rem) and (max-height: 820px));
+
 /* =============================================================================
  * FONDO DE LA PÁGINA
  *
@@ -111,6 +120,17 @@
   width: 1920.857px;
   height: 1461.863px;
   transform: translate(50%, -50%) rotate(-21.23deg);
+}
+
+/*
+ * Ilustración en modo compacto: lo más grande que quepa sin que la columna pase
+ * del alto de la pantalla. 374px = márgenes de la página (48) + textos (286) +
+ * separación (24) + holgura (16); 1.241 es la proporción de la imagen (412x332).
+ */
+.ilustracion {
+  @variant compacto {
+    width: clamp(240px, calc((100dvh - 374px) * 1.241), 412px);
+  }
 }
 
 /* =============================================================================

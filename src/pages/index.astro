@@ -13,10 +13,13 @@ import munecos from '@/assets/munecos-videollamada.png';
 import trama from '@/assets/trama-fondo.webp';
 import { MAXIMO_CARACTERES_CORREO } from '@/lib/correo';
 
+// `compacto:` es el desktop con poca altura (portátiles); ver global.css.
+const claseGrupo = 'flex flex-col gap-2 compacto:gap-1.5';
+
 const claseEtiqueta = 'text-[14px] leading-5 font-medium tracking-[0.07px] text-etiqueta';
 
 const claseCampo =
-  'h-14 w-full min-w-0 rounded-xl bg-white px-5 text-[16px] leading-6 text-black outline-none ' +
+  'h-14 w-full min-w-0 rounded-xl bg-white px-5 text-[16px] leading-6 text-black outline-none compacto:h-12 ' +
   'placeholder:text-marcador focus-visible:ring-2 focus-visible:ring-rosa ' +
   'focus-visible:ring-offset-2 focus-visible:ring-offset-morado-900 disabled:opacity-70 ' +
   'aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-rosa';
@@ -32,16 +35,18 @@ const claseCampo =
     </div>
 
     <!-- Móvil primero: mensaje, ilustración y formulario en columna. En desktop
-         (lg) el formulario pasa a la derecha; a partir de xl, medidas del diseño. -->
-    <main class="relative flex min-h-dvh items-center justify-center px-6 py-12 lg:py-16">
+         (lg) el formulario pasa a la derecha; a partir de xl, medidas del diseño.
+         En desktop con poca altura (compacto) todo se ajusta para caber en una
+         pantalla. -->
+    <main class="relative flex min-h-dvh items-center justify-center px-6 py-12 lg:py-16 compacto:py-6">
       <div class="flex w-full max-w-[560px] flex-col gap-10 lg:max-w-[1200px] lg:flex-row lg:items-center xl:gap-16">
         <!-- Mensaje -->
-        <section aria-labelledby="titulo" class="flex min-w-0 flex-1 flex-col items-center gap-8">
-          <div class="flex w-full flex-col gap-6 text-center lg:gap-8 lg:text-left">
-            <div class="flex flex-col gap-4 lg:gap-5">
+        <section aria-labelledby="titulo" class="flex min-w-0 flex-1 flex-col items-center gap-8 compacto:gap-6">
+          <div class="flex w-full flex-col gap-6 text-center lg:gap-8 lg:text-left compacto:gap-5">
+            <div class="flex flex-col gap-4 lg:gap-5 compacto:gap-3">
               <h1
                 id="titulo"
-                class="text-[32px] leading-10 font-bold tracking-[-0.48px] lg:text-[48px] lg:leading-14 lg:tracking-[-0.72px] xl:text-[56px] xl:leading-16 xl:tracking-[-0.84px]"
+                class="text-[32px] leading-10 font-bold tracking-[-0.48px] lg:text-[48px] lg:leading-14 lg:tracking-[-0.72px] xl:text-[56px] xl:leading-16 xl:tracking-[-0.84px] compacto:text-[44px] compacto:leading-[52px] compacto:tracking-[-0.66px]"
               >
                 Queremos escuchar <span class="text-rosa">tu testimonio</span>
               </h1>
@@ -62,7 +67,7 @@ const claseCampo =
 
           <!-- Los íconos de llamada van sobre los círculos blancos de la ilustración;
                sus posiciones están en % para que sigan encima al escalarla. -->
-          <div class="relative w-full max-w-[412px]">
+          <div class="ilustracion relative w-full max-w-[412px]">
             <Image
               src={munecos}
               alt=""
@@ -92,13 +97,13 @@ const claseCampo =
         <!-- Registro -->
         <section
           aria-labelledby="titulo-registro"
-          class="tarjeta-registro flex w-full flex-col justify-center overflow-hidden rounded-3xl p-[27px] sm:p-[43px] lg:w-[460px] lg:shrink-0 lg:self-stretch xl:w-[520px]"
+          class="tarjeta-registro flex w-full flex-col justify-center overflow-hidden rounded-3xl p-[27px] sm:p-[43px] lg:w-[460px] lg:shrink-0 lg:self-stretch xl:w-[520px] compacto:p-[35px]"
         >
           <!-- El relleno es el del diseño más su trazo de 3px; el filo de cristal
                (.filo-tarjeta) va por dentro de ese margen. -->
           <span class="filo-tarjeta" aria-hidden="true"></span>
 
-          <div id="registro" class="flex flex-col gap-8">
+          <div id="registro" class="flex flex-col gap-8 compacto:gap-6">
             <header class="flex flex-col gap-2 text-center">
               <h2 id="titulo-registro" class="text-[26px] leading-[34px] font-semibold tracking-[-0.13px]">
                 Déjanos tus datos
@@ -108,9 +113,9 @@ const claseCampo =
 
             <!-- `novalidate`: los avisos los da el script, en español y uno a la vez
                  (la API vuelve a revisarlo todo). -->
-            <form id="form-registro" novalidate class="flex flex-col gap-8">
-              <fieldset id="campos-registro" class="flex min-w-0 flex-col gap-5">
-                <div class="flex flex-col gap-2">
+            <form id="form-registro" novalidate class="flex flex-col gap-8 compacto:gap-6">
+              <fieldset id="campos-registro" class="flex min-w-0 flex-col gap-5 compacto:gap-4">
+                <div class={claseGrupo}>
                   <label for="nombre" class={claseEtiqueta}>Nombre</label>
                   <input
                     id="nombre"
@@ -125,7 +130,7 @@ const claseCampo =
                   />
                 </div>
 
-                <div class="flex flex-col gap-2">
+                <div class={claseGrupo}>
                   <label for="email" class={claseEtiqueta}>Correo electrónico</label>
                   <input
                     id="email"
@@ -143,7 +148,7 @@ const claseCampo =
                   />
                 </div>
 
-                <div class="flex flex-col gap-2">
+                <div class={claseGrupo}>
                   <label id="etiqueta-telefono" for="telefono" class={claseEtiqueta}>Teléfono</label>
                   <div role="group" aria-labelledby="etiqueta-telefono" class="flex gap-2">
                     <SelectorPais />
@@ -174,7 +179,7 @@ const claseCampo =
               <button
                 id="boton-registro"
                 type="submit"
-                class="flex h-14 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-rosa px-8 text-[16px] leading-6 font-semibold text-white transition-[opacity,transform] duration-150 ease-out hover:opacity-90 active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-morado-900 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+                class="flex h-14 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-rosa px-8 compacto:h-12 text-[16px] leading-6 font-semibold text-white transition-[opacity,transform] duration-150 ease-out hover:opacity-90 active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-morado-900 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <span id="texto-boton">Quiero contar mi historia</span>
                 <span
