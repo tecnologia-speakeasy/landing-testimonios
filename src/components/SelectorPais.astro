@@ -1,0 +1,43 @@
+---
+/**
+ * Selector de indicativo del teléfono: la bandera y el indicativo del país
+ * elegido (Colombia por defecto), en su propia caja blanca junto al número,
+ * como en el diseño. Al pulsarlo se abre el buscador de países
+ * (DialogoPaises.astro). El país viaja en el campo oculto `pais`; ver
+ * `@/lib/selector-pais`.
+ *
+ * Es el mismo selector de landing-referidos; solo cambia la caja.
+ */
+import { PAIS_POR_DEFECTO } from '@/lib/telefono';
+
+const pais = PAIS_POR_DEFECTO;
+---
+
+<div class="selector-pais flex shrink-0">
+  <input type="hidden" name="pais" value={pais.iso} />
+  <button
+    type="button"
+    aria-haspopup="dialog"
+    aria-controls="dialogo-paises"
+    class="boton-pais flex h-14 min-w-24 cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-white px-2.5 text-[16px] leading-6 text-black outline-none hover:bg-lila focus-visible:ring-2 focus-visible:ring-rosa focus-visible:ring-offset-2 focus-visible:ring-offset-morado-900 disabled:cursor-not-allowed disabled:opacity-70"
+  >
+    <span class="sr-only">Indicativo del país:</span>
+    <img
+      class="bandera h-3 w-[18px] shrink-0 rounded-[2px] object-cover"
+      src={`/img/flags/${pais.iso}.svg`}
+      alt={pais.name}
+      width="18"
+      height="12"
+    />
+    <span class="indicativo tabular-nums">+{pais.code}</span>
+    <svg class="size-3 shrink-0 text-marcador" viewBox="0 0 16 16" aria-hidden="true">
+      <path
+        d="M4 6l4 4 4-4"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"></path>
+    </svg>
+  </button>
+</div>

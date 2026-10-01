@@ -1,11 +1,387 @@
 ---
-import Welcome from '../components/Welcome.astro';
+import { Image } from 'astro:assets';
+import DialogoPaises from '../components/DialogoPaises.astro';
+import SelectorPais from '../components/SelectorPais.astro';
 import Layout from '../layouts/Layout.astro';
+import halo1 from '@/assets/halo-1.svg';
+import halo2 from '@/assets/halo-2.svg';
+import iconoColgar from '@/assets/icono-colgar.svg';
+import iconoTelefono from '@/assets/icono-telefono.svg';
+import munecos from '@/assets/munecos-videollamada.png';
+// La trama va en WebP sin pérdida: los mismos píxeles del PNG original en
+// menos de la mitad de peso (con pérdida pesa más, por la transparencia).
+import trama from '@/assets/trama-fondo.webp';
+import { MAXIMO_CARACTERES_CORREO } from '@/lib/correo';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const claseEtiqueta = 'text-[14px] leading-5 font-medium tracking-[0.07px] text-etiqueta';
+
+const claseCampo =
+  'h-14 w-full min-w-0 rounded-xl bg-white px-5 text-[16px] leading-6 text-black outline-none ' +
+  'placeholder:text-marcador focus-visible:ring-2 focus-visible:ring-rosa ' +
+  'focus-visible:ring-offset-2 focus-visible:ring-offset-morado-900 disabled:opacity-70 ' +
+  'aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-rosa';
 ---
 
-<Layout>
-	<Welcome />
+<Layout titulo="Cuenta tu testimonio | Speak Easy">
+  <div class="relative isolate min-h-dvh overflow-hidden">
+    <div class="fondo-pagina" aria-hidden="true" style={`--trama: url("${trama.src}")`}>
+      <div class="fondo-trama"></div>
+      <div class="fondo-velo"></div>
+      <img class="halo halo-1" src={halo1.src} alt="" width={halo1.width} height={halo1.height} />
+      <img class="halo halo-2" src={halo2.src} alt="" width={halo2.width} height={halo2.height} />
+    </div>
+
+    <!-- Móvil primero: mensaje, ilustración y formulario en columna. En desktop
+         (lg) el formulario pasa a la derecha; a partir de xl, medidas del diseño. -->
+    <main class="relative flex min-h-dvh items-center justify-center px-6 py-12 lg:py-16">
+      <div class="flex w-full max-w-[560px] flex-col gap-10 lg:max-w-[1200px] lg:flex-row lg:items-center xl:gap-16">
+        <!-- Mensaje -->
+        <section aria-labelledby="titulo" class="flex min-w-0 flex-1 flex-col items-center gap-8">
+          <div class="flex w-full flex-col gap-6 text-center lg:gap-8 lg:text-left">
+            <div class="flex flex-col gap-4 lg:gap-5">
+              <h1
+                id="titulo"
+                class="text-[32px] leading-10 font-bold tracking-[-0.48px] lg:text-[48px] lg:leading-14 lg:tracking-[-0.72px] xl:text-[56px] xl:leading-16 xl:tracking-[-0.84px]"
+              >
+                Queremos escuchar <span class="text-rosa">tu testimonio</span>
+              </h1>
+              <p class="text-[18px] leading-[26px] text-superficie">
+                <!-- El salto es del diseño y solo cuadra con el ancho de xl. -->
+                Si aprendiste inglés con nosotros, cuéntanos cómo te fue. Tu historia{' '}
+                <br class="hidden xl:inline" />es la que termina de convencer a alguien que hoy
+                está dudando si empezar.
+              </p>
+            </div>
+
+            <p class="text-[16px] leading-6 text-superficie">
+              Déjanos tus datos <span class="lg:hidden">aquí abajo</span><span class="hidden lg:inline"
+                >aquí al lado</span
+              > y te escribimos para coordinar el momento que mejor te quede.
+            </p>
+          </div>
+
+          <!-- Los íconos de llamada van sobre los círculos blancos de la ilustración;
+               sus posiciones están en % para que sigan encima al escalarla. -->
+          <div class="relative w-full max-w-[412px]">
+            <Image
+              src={munecos}
+              alt=""
+              width={412}
+              densities={[1, 2]}
+              format="webp"
+              quality={85}
+              class="block h-auto w-full"
+            />
+            <img
+              src={iconoTelefono.src}
+              alt=""
+              width="20"
+              height="20"
+              class="absolute top-[91.566%] left-[1.699%] h-auto w-[4.854%]"
+            />
+            <img
+              src={iconoColgar.src}
+              alt=""
+              width="32"
+              height="32"
+              class="absolute top-[90.06%] left-[10.922%] h-auto w-[7.767%]"
+            />
+          </div>
+        </section>
+
+        <!-- Registro -->
+        <section
+          aria-labelledby="titulo-registro"
+          class="tarjeta-registro flex w-full flex-col justify-center overflow-hidden rounded-3xl p-[27px] sm:p-[43px] lg:w-[460px] lg:shrink-0 lg:self-stretch xl:w-[520px]"
+        >
+          <!-- El relleno es el del diseño más su trazo de 3px; el filo de cristal
+               (.filo-tarjeta) va por dentro de ese margen. -->
+          <span class="filo-tarjeta" aria-hidden="true"></span>
+
+          <div id="registro" class="flex flex-col gap-8">
+            <header class="flex flex-col gap-2 text-center">
+              <h2 id="titulo-registro" class="text-[26px] leading-[34px] font-semibold tracking-[-0.13px]">
+                Déjanos tus datos
+              </h2>
+              <p class="text-[16px] leading-6 text-lila">Te contactamos para coordinar la grabación.</p>
+            </header>
+
+            <!-- `novalidate`: los avisos los da el script, en español y uno a la vez
+                 (la API vuelve a revisarlo todo). -->
+            <form id="form-registro" novalidate class="flex flex-col gap-8">
+              <fieldset id="campos-registro" class="flex min-w-0 flex-col gap-5">
+                <div class="flex flex-col gap-2">
+                  <label for="nombre" class={claseEtiqueta}>Nombre</label>
+                  <input
+                    id="nombre"
+                    name="nombre"
+                    type="text"
+                    autocomplete="name"
+                    maxlength="120"
+                    required
+                    placeholder="Escribe tu nombre"
+                    aria-describedby="error-registro"
+                    class={claseCampo}
+                  />
+                </div>
+
+                <div class="flex flex-col gap-2">
+                  <label for="email" class={claseEtiqueta}>Correo electrónico</label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="text"
+                    inputmode="email"
+                    autocomplete="email"
+                    autocapitalize="off"
+                    spellcheck="false"
+                    maxlength={MAXIMO_CARACTERES_CORREO}
+                    required
+                    placeholder="nombre@correo.com"
+                    aria-describedby="error-registro"
+                    class={claseCampo}
+                  />
+                </div>
+
+                <div class="flex flex-col gap-2">
+                  <label id="etiqueta-telefono" for="telefono" class={claseEtiqueta}>Teléfono</label>
+                  <div role="group" aria-labelledby="etiqueta-telefono" class="flex gap-2">
+                    <SelectorPais />
+                    <input
+                      id="telefono"
+                      name="telefono"
+                      type="tel"
+                      inputmode="tel"
+                      autocomplete="tel-national"
+                      maxlength="30"
+                      required
+                      placeholder="300 000 0000"
+                      aria-describedby="error-registro"
+                      class:list={[claseCampo, 'flex-1']}
+                    />
+                  </div>
+                </div>
+
+                <p
+                  id="error-registro"
+                  role="alert"
+                  aria-live="polite"
+                  class="hidden text-center text-[16px] leading-6 text-rosa"
+                >
+                </p>
+              </fieldset>
+
+              <button
+                id="boton-registro"
+                type="submit"
+                class="flex h-14 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-rosa px-8 text-[16px] leading-6 font-semibold text-white transition-[opacity,transform] duration-150 ease-out hover:opacity-90 active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-morado-900 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <span id="texto-boton">Quiero contar mi historia</span>
+                <span
+                  id="spinner"
+                  aria-hidden="true"
+                  class="hidden size-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
+                ></span>
+              </button>
+            </form>
+
+            <p class="text-center text-[14px] leading-5 text-lila">
+              Solo usamos tus datos para escribirte sobre el testimonio.
+            </p>
+          </div>
+
+          <div
+            id="registro-listo"
+            tabindex="-1"
+            class="hidden flex-col items-center gap-3 py-4 text-center outline-none"
+          >
+            <p class="text-[26px] leading-[34px] font-semibold tracking-[-0.13px]">
+              ¡Gracias<span id="nombre-listo"></span>!
+            </p>
+            <p class="text-[16px] leading-6 text-lila">
+              Recibimos tus datos. Te escribiremos pronto para coordinar la grabación de tu
+              testimonio.
+            </p>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <DialogoPaises />
 </Layout>
+
+<script>
+  import { MENSAJE_CORREO_INVALIDO, correoValido } from '@/lib/correo';
+  import { elegirPais, paisDe } from '@/lib/selector-pais';
+  import {
+    contarDigitos,
+    limitesTelefono,
+    limpiarTelefono,
+    problemaTelefono,
+    separarIndicativo,
+  } from '@/lib/telefono';
+
+  const form = document.querySelector<HTMLFormElement>('#form-registro');
+  const campos = document.querySelector<HTMLFieldSetElement>('#campos-registro');
+  const nombre = document.querySelector<HTMLInputElement>('#nombre');
+  const email = document.querySelector<HTMLInputElement>('#email');
+  const telefono = document.querySelector<HTMLInputElement>('#telefono');
+  const selector = document.querySelector<HTMLDivElement>('.selector-pais');
+  const boton = document.querySelector<HTMLButtonElement>('#boton-registro');
+  const textoBoton = document.querySelector<HTMLSpanElement>('#texto-boton');
+  const spinner = document.querySelector<HTMLSpanElement>('#spinner');
+  const error = document.querySelector<HTMLParagraphElement>('#error-registro');
+  const registro = document.querySelector<HTMLDivElement>('#registro');
+  const listo = document.querySelector<HTMLDivElement>('#registro-listo');
+  const nombreListo = document.querySelector<HTMLSpanElement>('#nombre-listo');
+
+  if (
+    form && campos && nombre && email && telefono && selector && boton && textoBoton &&
+    spinner && error && registro && listo && nombreListo
+  ) {
+    const mostrarError = (mensaje: string) => {
+      error.textContent = mensaje;
+      error.classList.toggle('hidden', mensaje === '');
+    };
+
+    /** Señala el campo con el problema y lleva el foco a él. */
+    const marcar = (campo: HTMLInputElement, mensaje: string) => {
+      campo.setAttribute('aria-invalid', 'true');
+      campo.focus();
+      mostrarError(mensaje);
+    };
+
+    const mostrar = (elemento: HTMLElement, visible: boolean) => {
+      elemento.classList.toggle('hidden', !visible);
+      elemento.classList.toggle('flex', visible);
+    };
+
+    const cargando = (activo: boolean) => {
+      boton.disabled = activo;
+      campos.disabled = activo;
+      textoBoton.textContent = activo ? 'Enviando…' : 'Quiero contar mi historia';
+      spinner.classList.toggle('hidden', !activo);
+    };
+
+    // Último valor aceptado del teléfono, para deshacer lo que pase del máximo.
+    let anterior = '';
+
+    // No deja escribir letras ni pasar del máximo de dígitos del país. Si el
+    // número ya estaba completo se descarta lo que se intentó añadir; si no (por
+    // ejemplo, al pegar un número largo), se conservan los primeros dígitos.
+    const ajustarTelefono = () => {
+      // "+57 300…" pegado o escrito a mano: el indicativo pasa al selector.
+      const separado = separarIndicativo(telefono.value, paisDe(selector));
+      if (separado) {
+        telefono.value = separado.resto;
+        telefono.setSelectionRange(separado.resto.length, separado.resto.length);
+        elegirPais(selector, separado.pais);
+        anterior = '';
+      }
+
+      const { maximo } = limitesTelefono(paisDe(selector));
+      const valor = telefono.value;
+      const cursor = telefono.selectionStart ?? valor.length;
+
+      if (contarDigitos(anterior) >= maximo && contarDigitos(valor) > maximo) {
+        const posicion = Math.max(0, cursor - (valor.length - anterior.length));
+        telefono.value = anterior;
+        telefono.setSelectionRange(posicion, posicion);
+        return;
+      }
+
+      const limpio = limpiarTelefono(valor, maximo);
+      if (limpio !== valor) {
+        const posicion = limpiarTelefono(valor.slice(0, cursor), maximo).length;
+        telefono.value = limpio;
+        telefono.setSelectionRange(posicion, posicion);
+      }
+      anterior = telefono.value;
+    };
+
+    // Al cambiar de país el número se recorta a su nuevo máximo.
+    const alCambiarPais = () => {
+      const pais = paisDe(selector);
+      telefono.value = limpiarTelefono(telefono.value, limitesTelefono(pais).maximo);
+      telefono.placeholder = pais.iso === 'co' ? '300 000 0000' : 'Número de teléfono';
+      telefono.removeAttribute('aria-invalid');
+      anterior = telefono.value;
+      mostrarError('');
+    };
+
+    form.addEventListener('input', (evento) => {
+      const objetivo = evento.target;
+      if (!(objetivo instanceof HTMLInputElement)) return;
+
+      mostrarError('');
+      objetivo.removeAttribute('aria-invalid');
+      if (objetivo === telefono) ajustarTelefono();
+    });
+
+    // El selector de país avisa con un `change` desde su campo oculto.
+    form.addEventListener('change', (evento) => {
+      const objetivo = evento.target;
+      if (objetivo instanceof HTMLInputElement && objetivo.name === 'pais') alCambiarPais();
+    });
+
+    form.addEventListener('submit', async (evento) => {
+      evento.preventDefault();
+      mostrarError('');
+
+      const datos = {
+        nombre: nombre.value.trim(),
+        email: email.value.trim(),
+        pais: paisDe(selector),
+        telefono: telefono.value.trim(),
+      };
+
+      if (datos.nombre === '') {
+        marcar(nombre, 'Escribe tu nombre.');
+        return;
+      }
+      if (!correoValido(datos.email)) {
+        marcar(email, datos.email === '' ? 'Escribe tu correo electrónico.' : MENSAJE_CORREO_INVALIDO);
+        return;
+      }
+      if (datos.telefono === '') {
+        marcar(telefono, 'Escribe tu teléfono.');
+        return;
+      }
+      const problema = problemaTelefono(datos.pais, datos.telefono);
+      if (problema) {
+        marcar(telefono, `El teléfono ${problema}.`);
+        return;
+      }
+
+      cargando(true);
+
+      try {
+        const respuesta = await fetch('/api/estudiante', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...datos, pais: datos.pais.iso }),
+        });
+
+        const resultado = (await respuesta.json().catch(() => null)) as
+          | { ok?: boolean; error?: string }
+          | null;
+
+        if (respuesta.ok && resultado?.ok) {
+          const primerNombre = datos.nombre.split(/\s+/)[0] ?? '';
+          nombreListo.textContent = primerNombre && `, ${primerNombre}`;
+          mostrar(registro, false);
+          mostrar(listo, true);
+          listo.focus();
+          return;
+        }
+
+        mostrarError(resultado?.error ?? 'No pudimos guardar tus datos. Inténtalo de nuevo.');
+      } catch {
+        mostrarError('No hay conexión con el servidor. Revisa tu internet e inténtalo de nuevo.');
+      } finally {
+        cargando(false);
+      }
+    });
+  }
+</script>

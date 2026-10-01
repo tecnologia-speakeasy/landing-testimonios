@@ -9,12 +9,27 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "migrate": "node scripts/migrate.mjs",
+    "check": "astro check"
   },
   "dependencies": {
-    "astro": "^7.3.5"
+    "@astrojs/vercel": "^11.0.11",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.3.5",
+    "dotenv": "^17.4.2",
+    "pg": "^8.23.1",
+    "tailwindcss": "^4.3.3",
+    "zod": "^4.6.5"
   },
   "allowScripts": {
     "esbuild": true
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@types/pg": "^8.23.1",
+    "country-flag-icons": "^1.6.20",
+    "libphonenumber-js": "^1.13.14",
+    "typescript": "^6.0.3"
   }
 }
