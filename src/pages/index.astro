@@ -1,16 +1,7 @@
 ---
-import { Image } from 'astro:assets';
 import DialogoPaises from '../components/DialogoPaises.astro';
 import SelectorPais from '../components/SelectorPais.astro';
 import Layout from '../layouts/Layout.astro';
-import halo1 from '@/assets/halo-1.svg';
-import halo2 from '@/assets/halo-2.svg';
-import iconoColgar from '@/assets/icono-colgar.svg';
-import iconoTelefono from '@/assets/icono-telefono.svg';
-import munecos from '@/assets/munecos-videollamada.png';
-// La trama va en WebP sin pérdida: los mismos píxeles del PNG original en
-// menos de la mitad de peso (con pérdida pesa más, por la transparencia).
-import trama from '@/assets/trama-fondo.webp';
 import { MAXIMO_CARACTERES_CORREO } from '@/lib/correo';
 
 // `compacto:` es el desktop con poca altura (portátiles); ver global.css.
@@ -26,13 +17,12 @@ const claseCampo =
 ---
 
 <Layout titulo="Cuenta tu testimonio | Speak Easy">
-  <div class="relative isolate min-h-dvh overflow-hidden">
-    <div class="fondo-pagina" aria-hidden="true" style={`--trama: url("${trama.src}")`}>
-      <div class="fondo-trama"></div>
-      <div class="fondo-velo"></div>
-      <img class="halo halo-1" src={halo1.src} alt="" width={halo1.width} height={halo1.height} />
-      <img class="halo halo-2" src={halo2.src} alt="" width={halo2.width} height={halo2.height} />
-    </div>
+  <!-- El fondo ocupa toda la pantalla: que se pida junto con el HTML y no
+       después de leer el CSS. -->
+  <link slot="head" rel="preload" as="image" href="/img/fondo-landing.png" />
+
+  <div class="relative isolate min-h-dvh">
+    <div class="fondo-pagina" aria-hidden="true"></div>
 
     <!-- Móvil primero: mensaje, ilustración y formulario en columna. En desktop
          (lg) el formulario pasa a la derecha; a partir de xl, medidas del diseño.
@@ -65,33 +55,14 @@ const claseCampo =
             </p>
           </div>
 
-          <!-- Los íconos de llamada van sobre los círculos blancos de la ilustración;
-               sus posiciones están en % para que sigan encima al escalarla. -->
-          <div class="ilustracion relative w-full max-w-[412px]">
-            <Image
-              src={munecos}
-              alt=""
-              width={412}
-              densities={[1, 2]}
-              format="webp"
-              quality={85}
-              class="block h-auto w-full"
-            />
-            <img
-              src={iconoTelefono.src}
-              alt=""
-              width="20"
-              height="20"
-              class="absolute top-[91.566%] left-[1.699%] h-auto w-[4.854%]"
-            />
-            <img
-              src={iconoColgar.src}
-              alt=""
-              width="32"
-              height="32"
-              class="absolute top-[90.06%] left-[10.922%] h-auto w-[7.767%]"
-            />
-          </div>
+          <!-- La ilustración ya trae los íconos de llamada; se sirve tal cual (PNG). -->
+          <img
+            src="/img/munecos.png"
+            alt=""
+            width="412"
+            height="332"
+            class="ilustracion block h-auto w-full max-w-[412px]"
+          />
         </section>
 
         <!-- Registro -->

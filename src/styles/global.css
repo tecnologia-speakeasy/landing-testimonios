@@ -53,78 +53,30 @@
 /* =============================================================================
  * FONDO DE LA PÁGINA
  *
- * Las capas del diseño, de abajo arriba: morado plano, la trama de líneas al 5 %
- * (screen), un velo morado arriba y oscuro abajo, y dos halos morados (abajo a
- * la izquierda y arriba a la derecha). Todo va en `.fondo-pagina`, detrás del
- * contenido y del alto de la página.
+ * Una sola imagen con todo el diseño del fondo (trama, halos y degradados):
+ * public/img/fondo-landing.png. Cubre la pantalla y se queda fija mientras el
+ * contenido se desplaza (en móvil, donde la página es más alta que la
+ * pantalla); así no se estira a todo el alto de la página. 100lvh: el alto con
+ * las barras del navegador recogidas, para que no salte al desplazarse.
+ * Debajo, el morado del diseño mientras la imagen carga.
  * ===========================================================================*/
 .fondo-pagina {
-  position: absolute;
-  inset: 0;
-  isolation: isolate;
-  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100lvh;
   pointer-events: none;
   background-color: var(--color-morado-900);
+  background-image: url('/img/fondo-landing.png');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 /*
- * La imagen llega en `--trama` desde la página (src/assets/trama-fondo.webp).
- * El original trae las líneas en morado, pero el diseño las pinta en blanco
- * (así sale la trama en el render de Figma): el filtro las pasa a blanco sin
- * tocar la transparencia.
- */
-.fondo-trama {
-  position: absolute;
-  inset: 0;
-  background-image: var(--trama);
-  background-position: top left;
-  background-size: 1064.253px 1196px;
-  filter: brightness(0) invert(1);
-  mix-blend-mode: screen;
-  opacity: 0.05;
-}
-
-.fondo-velo {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(180deg, rgba(65, 39, 105, 0.26) 23.009%, rgba(0, 0, 0, 0) 131.34%),
-    linear-gradient(180deg, rgba(23, 11, 43, 0) 43.102%, rgba(0, 0, 0, 0.4) 101.39%);
-}
-
-/*
- * Halos: elipses con degradado radial (src/assets/halo-*.svg), giradas. Cada
- * una se ancla por su centro a la esquina donde la pone el diseño (frame de
- * 1920x1080), así siguen en su sitio con cualquier ancho y alto de pantalla.
- */
-.halo {
-  position: absolute;
-  max-width: none;
-  user-select: none;
-}
-
-/* Centro a 74,7px del borde izquierdo y 79px del inferior. */
-.halo-1 {
-  left: 74.74px;
-  bottom: 79px;
-  width: 1885.292px;
-  height: 1464.4px;
-  transform: translate(-50%, 50%) rotate(-19.16deg);
-  mix-blend-mode: lighten;
-}
-
-/* Centro en el borde derecho, 24px por debajo del techo. */
-.halo-2 {
-  top: 24px;
-  right: 0;
-  width: 1920.857px;
-  height: 1461.863px;
-  transform: translate(50%, -50%) rotate(-21.23deg);
-}
-
-/*
- * Ilustración en modo compacto: lo más grande que quepa sin que la columna pase
- * del alto de la pantalla. 374px = márgenes de la página (48) + textos (286) +
+ * Ilustración (public/img/munecos.png) en modo compacto: lo más grande que
+ * quepa sin que la columna pase del alto de la pantalla. 374px = márgenes de la página (48) + textos (286) +
  * separación (24) + holgura (16); 1.241 es la proporción de la imagen (412x332).
  */
 .ilustracion {

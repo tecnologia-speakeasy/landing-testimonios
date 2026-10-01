@@ -71,18 +71,15 @@ npm install --no-save --force @astrojs/compiler-binding-wasm32-wasi@<versión de
 
 ## Imágenes
 
-Todas están en `src/assets/` y Astro las copia (o las optimiza) en el build:
+Las dos imágenes de la página están en `public/img/` y se sirven tal cual, sin
+convertir ni recomprimir. Para cambiar una basta con reemplazar el archivo
+manteniendo su nombre:
 
-- `munecos-videollamada.png`: la ilustración, en el tamaño original de Figma
-  (1847x1487). Astro genera dos WebP (412 y 824 px de ancho, para pantallas
-  normales y retina).
-- `trama-fondo.webp`: la trama de líneas del fondo. Es el PNG original pasado a
-  WebP **sin pérdida** (mismos píxeles, menos de la mitad de peso). El
-  original trae las líneas en morado; el CSS las pinta en blanco, como se ven en
-  Figma.
-- `halo-1.svg`, `halo-2.svg`: los halos morados del fondo, exportados de Figma.
-- `icono-telefono.svg`, `icono-colgar.svg`: los íconos que van sobre los
-  círculos blancos de la ilustración.
+- `fondo-landing.png`: el fondo completo del diseño (trama, halos y degradados)
+  en una sola imagen. Cubre la pantalla y queda fijo al desplazarse (ver
+  `.fondo-pagina` en `src/styles/global.css`).
+- `munecos.png`: la ilustración de la videollamada, con los íconos de llamada
+  ya incluidos (412x332, el tamaño en que se muestra en desktop).
 
 ## Estructura
 
