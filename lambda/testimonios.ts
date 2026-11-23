@@ -1,10 +1,7 @@
-import type { APIRoute } from 'astro';
 import { MENSAJE_CORREO_INVALIDO, correoValido } from '@/lib/correo';
-import { consultar } from '@/lib/db';
-import { json } from '@/lib/http';
 import { componerE164, paisPorIso, problemaTelefono } from '@/lib/telefono';
-
-export const prerender = false;
+import { consultar } from './db';
+import { json, type Respuesta } from './http';
 
 /** Largo máximo del nombre; el formulario no deja escribir más. */
 const MAXIMO_CARACTERES_NOMBRE = 120;
@@ -19,29 +16,10 @@ const MAXIMO_CARACTERES_NOMBRE = 120;
  * - El teléfono llega sin indicativo, con el país aparte; se valida con las
  *   reglas de ese país y se guarda en formato E.164 (ver `@/lib/telefono`).
  *
- * Envoltorio: cualquier error inesperado (configuración inválida, caída de red)
- * se registra en el servidor y se responde en JSON, nunca con una página de error.
+ * Las reglas son las mismas que aplica el formulario, pero se repiten aquí
+ * porque cualquiera puede llamar a la API sin pasar por la página.
  */
-export const POST: APIRoute = async (contexto) => {
-  try {
-    return await manejarPost(contexto);
-  } catch (error) {
-    console.error('[estudiante] error no controlado:', error);
-    return json(
-      { ok: false, error: 'No pudimos guardar tus datos. Inténtalo de nuevo en un momento.' },
-      500,
-    );
-  }
-};
-
-const manejarPost: APIRoute = async ({ request }) => {
-  let cuerpo: unknown;
-  try {
-    cuerpo = await request.json();
-  } catch {
-    return json({ ok: false, error: 'Petición inválida.' }, 400);
-  }
-
+export async function registrarEstudiante(cuerpo: unknown): Promise<Respuesta> {
   const datos = cuerpo as
     | { nombre?: unknown; email?: unknown; pais?: unknown; telefono?: unknown }
     | null;
@@ -86,7 +64,4 @@ const manejarPost: APIRoute = async ({ request }) => {
   );
 
   return json({ ok: true });
-};
-
-/** Cualquier método distinto de POST. */
-export const ALL: APIRoute = () => json({ ok: false, error: 'Método no permitido.' }, 405);
+}

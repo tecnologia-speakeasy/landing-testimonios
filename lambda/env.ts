@@ -1,23 +1,9 @@
 import { z } from 'zod';
 
 /**
- * Lectura y validación de variables de entorno. SOLO servidor: este módulo
- * nunca debe importarse desde código que se envíe al navegador.
- *
- * Las variables se leen con acceso estático a `import.meta.env` (así las inyecta
- * Vite en dev y en el bundle SSR) con respaldo en `process.env`, que es de donde
- * vienen en Vercel en tiempo de ejecución.
+ * Variables de entorno de la Lambda (Configuration → Environment variables en
+ * la consola de AWS). Para probar en local se toman de `.env.local`.
  */
-const crudas: Record<string, string | undefined> = {
-  PGHOST: import.meta.env.PGHOST ?? process.env.PGHOST,
-  PGPORT: import.meta.env.PGPORT ?? process.env.PGPORT,
-  PGUSER: import.meta.env.PGUSER ?? process.env.PGUSER,
-  PGPASSWORD: import.meta.env.PGPASSWORD ?? process.env.PGPASSWORD,
-  PGDATABASE: import.meta.env.PGDATABASE ?? process.env.PGDATABASE,
-  PGSCHEMA: import.meta.env.PGSCHEMA ?? process.env.PGSCHEMA,
-  PGSSL: import.meta.env.PGSSL ?? process.env.PGSSL,
-  PGPOOL_MAX: import.meta.env.PGPOOL_MAX ?? process.env.PGPOOL_MAX,
-};
 
 /** Error de configuración; se distingue de los errores de negocio. */
 export class ErrorConfiguracion extends Error {
@@ -39,7 +25,6 @@ const esquemaDb = z.object({
     .regex(/^[a-z_][a-z0-9_]*$/i, 'PGSCHEMA solo admite letras, números y guiones bajos')
     .default('testimonios'),
   PGSSL: z.enum(['require', 'disable']).default('require'),
-  PGPOOL_MAX: z.coerce.number().int().positive().default(3),
 });
 
 let cache: z.infer<typeof esquemaDb> | null = null;
@@ -50,7 +35,7 @@ export function envDb(): z.infer<typeof esquemaDb> {
 
   // Las vacías se tratan como ausentes para que apliquen los valores por defecto.
   const limpias = Object.fromEntries(
-    Object.entries(crudas).filter(([, valor]) => valor !== undefined && valor !== ''),
+    Object.entries(process.env).filter(([, valor]) => valor !== undefined && valor !== ''),
   );
 
   const resultado = esquemaDb.safeParse(limpias);
@@ -60,7 +45,7 @@ export function envDb(): z.infer<typeof esquemaDb> {
       .join('\n');
     throw new ErrorConfiguracion(
       `Faltan o son inválidas las variables de entorno de PostgreSQL:\n${detalle}\n` +
-        'Revisa tu .env.local (o las variables del proyecto en Vercel) tomando .env.example como referencia.',
+        'Revisa las variables de la Lambda en la consola de AWS, tomando .env.example como referencia.',
     );
   }
 

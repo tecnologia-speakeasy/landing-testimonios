@@ -4,8 +4,9 @@ Página para que los estudiantes de Speak Easy que quieran contar su testimonio
 dejen sus datos (nombre, correo y teléfono) y el equipo les escriba para
 coordinar la grabación.
 
-- **Astro 7** desplegado en **Vercel**: la landing es estática y solo
-  `/api/estudiante` corre en servidor
+- **Astro 7**, sitio 100 % estático publicado en **AWS Amplify**
+- El formulario se guarda con la **API de las landings**, una **Lambda** de AWS
+  (`api-landings`, código en `lambda/`)
 - **Tailwind CSS 4**, diseño móvil primero (dos columnas a partir de 1024px)
 - **PostgreSQL** con el paquete `pg` (sin ORM) y migraciones en SQL plano
 - Misma base de datos que `landing-referidos`, pero en su propio esquema: `testimonios`
@@ -22,8 +23,9 @@ Diseño: Figma · [LANDING-TESTIMONIO](https://www.figma.com/design/mhpkVVVGa0tv
    mismo de `landing-referidos`; si pega un número con "+57…", el indicativo
    pasa solo al selector.
 2. El formulario revisa los datos antes de enviar (correo con forma de correo,
-   teléfono con los dígitos del país) y `POST /api/estudiante` los vuelve a
-   revisar.
+   teléfono con los dígitos del país) y los envía a la Lambda
+   (`POST /testimonios/estudiante`), que los vuelve a revisar con las mismas
+   reglas (`src/lib/correo.ts` y `src/lib/telefono.ts`).
 3. Se guarda en `estudiantes` por correo (recortado y en minúsculas). Si el
    correo ya existía, se actualizan el nombre y el teléfono en lugar de
    duplicar el registro.
@@ -55,8 +57,38 @@ npm run migrate                # crea el esquema `testimonios` y su tabla si fal
 npm run dev
 ```
 
-En Vercel hay que cargar las mismas variables de `.env.example` en
-*Settings → Environment Variables*.
+Ojo: en local el formulario también envía a la Lambda de producción (el CORS
+permite `http://localhost:4321`), así que lo que se envíe queda en la base real.
+Para apuntar a otra Lambda, define `PUBLIC_API_URL` en `.env.local`.
+
+## Publicación
+
+### La página (AWS Amplify)
+
+`npm run build` deja el sitio en `dist/` y Amplify publica esa carpeta. No
+necesita variables de entorno: la URL de la Lambda ya viene por defecto en
+`astro.config.mjs` (se puede cambiar con `PUBLIC_API_URL`).
+
+### La API (Lambda `api-landings`, región us-east-2)
+
+Cada vez que cambie algo en `lambda/` o en las reglas de `src/lib`:
+
+```sh
+npm run build:lambda           # deja lambda/dist/api-landings.zip
+```
+
+y en la consola de Lambda: pestaña **Code** → **Upload from** → **.zip file**.
+
+Configuración de la función (se hace una sola vez):
+
+- Node.js 22.x, arm64, 256 MB, timeout de 15 s, fuera de VPC.
+- Variables de entorno: las `PG*` de `.env.example`.
+- **Function URL** con Auth type `NONE` y CORS: los dominios de la landing
+  (el de Amplify y `http://localhost:4321`), método `POST`, header
+  `content-type`.
+
+Para sumar otra landing a la misma API: su ruta en `lambda/index.ts`, su
+archivo al lado de `lambda/testimonios.ts` y su dominio en el CORS.
 
 ### Windows con Smart App Control
 
@@ -87,10 +119,14 @@ manteniendo su nombre:
 db/migrations/001_init.sql        Tabla estudiantes
 scripts/migrate.mjs               Aplica las migraciones pendientes (npm run migrate)
 scripts/gen-countries.mjs         Regenera la lista de países y sus banderas
-src/lib/env.ts                    Validación de variables de entorno (zod)
-src/lib/db.ts                     Pool de PostgreSQL (singleton)
-src/lib/correo.ts                 Formato del correo
-src/lib/telefono.ts               Reglas del teléfono por país y formato E.164
+scripts/build-lambda.mjs          Empaqueta la API en un .zip (npm run build:lambda)
+lambda/index.ts                   Entrada de la Lambda: rutas de la API
+lambda/testimonios.ts             Guarda los datos del estudiante
+lambda/db.ts                      Conexión a PostgreSQL (una por petición)
+lambda/env.ts                     Validación de variables de entorno (zod)
+lambda/http.ts                    Petición y respuesta de la Function URL
+src/lib/correo.ts                 Formato del correo (lo usan la página y la API)
+src/lib/telefono.ts               Reglas del teléfono por país y formato E.164 (ídem)
 src/lib/countries.ts              Países e indicativos (generado)
 src/lib/selector-pais.ts          Estado del selector de indicativo
 src/layouts/Layout.astro          <head> común: favicon, precarga de fuente
@@ -98,5 +134,4 @@ src/styles/global.css             Fuente, tokens del diseño, fondo y tarjeta
 src/components/SelectorPais.astro Botón con la bandera y el indicativo
 src/components/DialogoPaises.astro  Buscador de países
 src/pages/index.astro             La landing con el formulario
-src/pages/api/estudiante.ts       Guarda los datos del estudiante
 ```
